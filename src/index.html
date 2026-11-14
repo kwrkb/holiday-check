@@ -17,8 +17,11 @@
     <h1>処方箋の休み確認</h1>
     <div class="issue">
       <label for="issue-date">交付日</label>
-      <input type="date" id="issue-date" required>
-      <span id="issue-weekday" class="issue-weekday"></span>
+      <span class="picker">
+        <span id="issue-display" class="issue-display" aria-hidden="true"></span>
+        <input type="date" id="issue-date" required>
+      </span>
+      <span id="issue-today" class="issue-today">今日</span>
       <button type="button" id="reset-today" hidden>今日に戻す</button>
     </div>
   </header>

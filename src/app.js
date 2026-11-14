@@ -3,6 +3,7 @@ import { buildReport, isValidDate, todayJST, WEEKDAYS_JA, weekday } from "./core
 
 const $ = (id) => document.getElementById(id);
 const input = $("issue-date");
+const display = $("issue-display");
 const resetButton = $("reset-today");
 
 let data = null;
@@ -16,15 +17,12 @@ function el(tag, className, text) {
   return e;
 }
 
-/** "2027-01-13" → "1/13(水)"。交付日と年が違えば年を小さく付ける */
-function dateNode(iso, wd, baseYear) {
-  const span = el("span", "date");
-  const [y, m, d] = iso.split("-").map(Number);
-  if (String(y) !== baseYear) span.append(el("span", "year", `${y}年`));
-  span.append(`${m}/${d}(${WEEKDAYS_JA[wd]})`);
-  return span;
+/** "2027-01-09" → "2027/01/09(土)"（ブラウザの言語設定によらず年/月/日で表示する） */
+function fullDate(iso, wd) {
+  return `${iso.replaceAll("-", "/")}(${WEEKDAYS_JA[wd]})`;
 }
 
+/** "2027-01-09" → "1/9(土)"（使用期限の期間内の休みの列挙用） */
 function shortDate(iso, wd) {
   const [, m, d] = iso.split("-").map(Number);
   return `${m}/${d}(${WEEKDAYS_JA[wd]})`;
@@ -39,12 +37,10 @@ function rowNode(status) {
 
 const OUT_OF_RANGE = "祝日データ範囲外";
 
-function renderExpiry(e, baseYear) {
+function renderExpiry(e) {
   const li = rowNode(e.status);
   li.append(el("span", "label", "期限"));
-  const date = dateNode(e.date, e.weekday, baseYear);
-  date.append("まで");
-  li.append(date);
+  li.append(el("span", "date", `${fullDate(e.date, e.weekday)}まで`));
   if (e.holidays.length > 0) {
     const reason = el("span", "reason", "期間内に休み: ");
     e.holidays.forEach((d, i) => {
@@ -57,10 +53,10 @@ function renderExpiry(e, baseYear) {
   return li;
 }
 
-function renderOffset(o, baseYear) {
+function renderOffset(o) {
   const li = rowNode(o.status);
   li.append(el("span", "label", `${o.n}日後`));
-  li.append(dateNode(o.date, o.weekday, baseYear));
+  li.append(el("span", "date", fullDate(o.date, o.weekday)));
   if (o.reasons.length > 0) li.append(el("span", "reason", `休み: ${o.reasons.join("・")}`));
   if (o.outOfRange) li.append(el("span", "reason out-of-range", OUT_OF_RANGE));
   return li;
@@ -74,21 +70,21 @@ function showMessage(text) {
 
 function render() {
   const issue = input.value;
+  const valid = isValidDate(issue);
   resetButton.hidden = issue === currentToday;
+  display.textContent = valid ? fullDate(issue, weekday(issue)) : "日付を選択";
+  $("issue-today").hidden = issue !== currentToday;
   if (!data) return;
-  if (!isValidDate(issue)) {
-    $("issue-weekday").textContent = "";
+  if (!valid) {
     $("expiry").replaceChildren();
     $("offsets").replaceChildren();
     showMessage("交付日を入力してください。");
     return;
   }
   showMessage("");
-  $("issue-weekday").textContent = `(${WEEKDAYS_JA[weekday(issue)]})${issue === currentToday ? " 今日" : ""}`;
   const report = buildReport(issue, data);
-  const baseYear = issue.slice(0, 4);
-  $("expiry").replaceChildren(renderExpiry(report.expiry, baseYear));
-  $("offsets").replaceChildren(...report.offsets.map((o) => renderOffset(o, baseYear)));
+  $("expiry").replaceChildren(renderExpiry(report.expiry));
+  $("offsets").replaceChildren(...report.offsets.map(renderOffset));
 }
 
 function setToday() {
@@ -108,9 +104,18 @@ function checkDateChange() {
 
 async function init() {
   input.value = currentToday;
+  render();
   input.addEventListener("input", () => {
     followToday = input.value === currentToday;
     render();
+  });
+  // 入力欄は透明にして自前の表示に重ねている。クリックでピッカーを開く
+  input.addEventListener("click", () => {
+    try {
+      input.showPicker();
+    } catch {
+      // showPicker 非対応のブラウザでは、ネイティブの動作に任せる
+    }
   });
   resetButton.addEventListener("click", setToday);
   document.addEventListener("visibilitychange", () => {
