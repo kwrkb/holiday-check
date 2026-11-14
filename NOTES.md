@@ -21,6 +21,7 @@
 
 - `dayInfo().status`: `holiday` / `unknown`（範囲外かつ休みでない）/ `workday`。`outOfRange` は status と独立したフラグ（範囲外の日曜は `holiday` + `outOfRange`）
 - 使用期限は `expiryCheck()`。4 日分の `dayInfo` を持ち、`holidays` に休みの日だけを入れる
+- N 日後の一覧は `OFFSETS`（2026-11-14 時点で 14 個）。VISION.md・README・`test/core.test.js` にも同じ並びを書いているので、変えるときは 4 か所そろえる。`buildReport(issueDate, data, offsets = OFFSETS)` は引数で差し替えられる
 
 ## app.js
 
@@ -28,8 +29,9 @@
 - 交付日の入力欄は透明にして自前表示（`yyyy/mm/dd(曜)`）に重ねている。クリックで `showPicker()`。一覧の日付も `yyyy/mm/dd(曜)`、使用期限の休みの列挙だけ `m/d(曜)`
 - `index.html` に CSP（`default-src 'self'`）を入れ、外部リクエストをブラウザ側でも遮断する。favicon は `data:,` で要求させない
 
-## VM（2026-11-14 時点、読み取りで確認）
+## VM（2026-11-14 時点）
 
-- Caddy v2.11 / `/etc/caddy/Caddyfile` で `lab.kwrkb.net` を `root * /var/www/lab` + `file_server`
+- Caddy v2.11.9 / `/etc/caddy/Caddyfile` で `lab.kwrkb.net` を `root * /var/www/lab` + `file_server`
 - `/var/www/lab` は root:root 755。サブディレクトリ `holiday-check/` を ubuntu 所有で作れば以後 sudo なしで rsync できる
-- トップページ `/var/www/lab/index.html` はどのリポジトリでも管理していない手書きファイル（root:root 644）。`holiday-check/` へのリンクを含む。変更は VM のホームに置いてから `sudo install -m 644 -o root -g root <file> /var/www/lab/index.html` で差し替える（sudo のため事前確認が必要）
+- トップページ `/var/www/lab/index.html` はどのリポジトリでも管理していない手書きファイル（root:root 644）。中身は見出し・挨拶文・「公開中」のリンク一覧（今は `holiday-check/` だけ）。サブディレクトリでページを増やしたら、この一覧に足す
+- トップページの変更は、VM のホームに置いてから `sudo install -m 644 -o root -g root <file> /var/www/lab/index.html` で差し替える（sudo のため事前確認が必要）。差し替え前の版はホームに `lab-index.html.bak-YYYYMMDD[-N]` として残している（ドキュメントルートに置くと公開されるため）
