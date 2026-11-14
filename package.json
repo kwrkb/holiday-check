@@ -1,0 +1,9 @@
+{
+  "name": "holiday-check",
+  "private": true,
+  "type": "module",
+  "description": "処方箋の使用期限と投与日数の N 日後に休みが入っていないかを知らせる静的ページ",
+  "scripts": {
+    "test": "node --test"
+  }
+}
