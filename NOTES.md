@@ -32,3 +32,4 @@
 
 - Caddy v2.11 / `/etc/caddy/Caddyfile` で `lab.kwrkb.net` を `root * /var/www/lab` + `file_server`
 - `/var/www/lab` は root:root 755。サブディレクトリ `holiday-check/` を ubuntu 所有で作れば以後 sudo なしで rsync できる
+- トップページ `/var/www/lab/index.html` はどのリポジトリでも管理していない手書きファイル（root:root 644）。`holiday-check/` へのリンクを含む。変更は VM のホームに置いてから `sudo install -m 644 -o root -g root <file> /var/www/lab/index.html` で差し替える（sudo のため事前確認が必要）
