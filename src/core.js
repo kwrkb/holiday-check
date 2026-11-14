@@ -3,7 +3,7 @@
 // 内部計算は Date.UTC による通日（1970-01-01 からの日数）で行い、
 // 実行環境のローカルタイムゾーンに依存する Date メソッドは使わない。
 
-export const OFFSETS = Object.freeze([7, 14, 21, 28, 30, 56, 60, 63, 84, 90]);
+export const OFFSETS = Object.freeze([7, 14, 21, 28, 30, 35, 42, 49, 56, 60, 63, 70, 84, 90]);
 export const EXPIRY_DAYS = 4; // 交付日を含めて 4 日以内
 export const WEEKDAYS_JA = Object.freeze(["日", "月", "火", "水", "木", "金", "土"]);
 

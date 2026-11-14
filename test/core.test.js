@@ -107,12 +107,12 @@ describe("日付計算", () => {
     assert.equal(addDays("2027-02-28", 7), "2027-03-07"); // 平年
   });
 
-  test("N 日後は 10 行、交付日 + N 日", () => {
+  test("N 日後は 14 行、交付日 + N 日", () => {
     const r = buildReport("2026-11-14", data);
-    assert.deepEqual(r.offsets.map((o) => o.n), [7, 14, 21, 28, 30, 56, 60, 63, 84, 90]);
-    assert.deepEqual(OFFSETS, [7, 14, 21, 28, 30, 56, 60, 63, 84, 90]);
+    assert.deepEqual(r.offsets.map((o) => o.n), [7, 14, 21, 28, 30, 35, 42, 49, 56, 60, 63, 70, 84, 90]);
+    assert.deepEqual(OFFSETS, [7, 14, 21, 28, 30, 35, 42, 49, 56, 60, 63, 70, 84, 90]);
     assert.equal(r.offsets[0].date, "2026-11-21");
-    assert.equal(r.offsets[9].date, "2027-02-12");
+    assert.equal(r.offsets.at(-1).date, "2027-02-12");
   });
 
   test("不正な日付は拒否する", () => {
