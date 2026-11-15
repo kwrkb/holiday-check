@@ -29,9 +29,10 @@
 - 交付日の入力欄は透明にして自前表示（`yyyy/mm/dd(曜)`）に重ねている。クリックで `showPicker()`。一覧の日付も `yyyy/mm/dd(曜)`、使用期限の休みの列挙だけ `m/d(曜)`
 - `index.html` に CSP（`default-src 'self'`）を入れ、外部リクエストをブラウザ側でも遮断する。favicon は `data:,` で要求させない
 
-## VM（2026-11-14 時点）
+## VM（2026-11-16 時点）
 
-- Caddy v2.11.9 / `/etc/caddy/Caddyfile` で `lab.kwrkb.net` を `root * /var/www/lab` + `file_server`
-- `/var/www/lab` は root:root 755。サブディレクトリ `holiday-check/` を ubuntu 所有で作れば以後 sudo なしで rsync できる
-- トップページ `/var/www/lab/index.html` はどのリポジトリでも管理していない手書きファイル（root:root 644）。中身は見出し・挨拶文・「公開中」のリンク一覧（今は `holiday-check/` だけ）。サブディレクトリでページを増やしたら、この一覧に足す
-- トップページの変更は、VM のホームに置いてから `sudo install -m 644 -o root -g root <file> /var/www/lab/index.html` で差し替える（sudo のため事前確認が必要）。差し替え前の版はホームに `lab-index.html.bak-YYYYMMDD[-N]` として残している（ドキュメントルートに置くと公開されるため）
+- VM 全体（トップページ・Caddy 設定・構成記録）は別リポジトリ `kwrkb/lab-kwrkb-net`（private）が管理している。VM の現状はそちらの NOTES.md と `state/inventory.txt` が新しい
+- このリポジトリが持つのは `/var/www/lab/holiday-check/` の中身だけ。`make deploy` が sudo なしで rsync する
+- Caddy は `lab.kwrkb.net` を `/var/www/lab` から `file_server` で配信している。`/var/www/lab` は ubuntu:ubuntu 755（2026-11-16 に root 所有から変わった）
+- トップページ `/var/www/lab/index.html` と Caddyfile の正本は lab-kwrkb-net にある。このリポジトリからは書き換えない。「公開中」のリンク一覧を変えるときは、そちらを直してそちらの `make deploy` で反映する
+- VM のホームに `lab-index.html.bak-20261114` と `lab-index.html.bak-20261114-2` が残っている（lab-kwrkb-net ができる前に、トップページを手で差し替えたときの退避）
